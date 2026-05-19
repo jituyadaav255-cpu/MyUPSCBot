@@ -1,14 +1,12 @@
 from pyrogram import Client
 from vars import BOT_TOKEN
 
-# API_ID और HASH को None पर सेट करना सबसे जरूरी है
-# ताकि बोट सिर्फ TOKEN का इस्तेमाल करे
+# in_memory=True करने से कोई .session फाइल नहीं बनेगी
 app = Client(
     "my_bot",
-    api_id=None,
-    api_hash=None,
-    bot_token=BOT_TOKEN
+    bot_token=BOT_TOKEN,
+    in_memory=True 
 )
 
-print("बोट शुरू हो रहा है...")
+print("बोट सफलता के साथ लाइव हो गया है!")
 app.run()
