@@ -1,7 +1,16 @@
 from telethon import TelegramClient, events
 import yt_dlp
 import os
-from vars import API_ID, API_HASH, BOT_TOKEN
+
+# =========================
+# Telegram API Details
+# =========================
+
+API_ID = 31911187
+
+API_HASH = "8291ae3d580f1fb5f8f84e0e3c6a3e6f"
+
+BOT_TOKEN = "8908901463:AAHuKRv0wbGys3TOHNO7tElnv8Gl75G6cRk"
 
 # =========================
 # Start Bot
@@ -23,22 +32,27 @@ print("✅ Bot Started Successfully")
 
 async def txt_handler(event):
 
+    # TXT file check
     if event.message.file and event.message.file.name.endswith('.txt'):
 
         await event.respond(
             "✅ TXT File मिल गई\n🎬 Video Download शुरू..."
         )
 
+        # Download TXT
         txt_path = await event.download_media()
 
+        # Read TXT
         with open(txt_path, 'r', encoding='utf-8') as file:
             links = file.readlines()
 
+        # Process Every Link
         for link in links:
 
             url = link.strip()
 
-            if url.startswith('http'):
+            # Valid URL Check
+            if url.startswith("http"):
 
                 try:
 
@@ -46,34 +60,45 @@ async def txt_handler(event):
                         f"⬇️ Downloading:\n{url}"
                     )
 
-                    # Delete old video
-                    if os.path.exists("video.mp4"):
-                        os.remove("video.mp4")
+                    # Delete old files
+                    for f in os.listdir():
+                        if f.endswith(".mp4"):
+                            os.remove(f)
 
+                    # Download Settings
                     ydl_opts = {
-                        'format': 'best[ext=mp4]',
-                        'outtmpl': 'video.mp4',
-                        'quiet': True,
+                        'format': 'bestvideo+bestaudio/best',
+                        'merge_output_format': 'mp4',
+                        'outtmpl': 'video.%(ext)s',
+                        'quiet': False,
                         'noplaylist': True
                     }
 
+                    # Download Video
                     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                         ydl.download([url])
 
-                    if os.path.exists("video.mp4"):
+                    # Find MP4 File
+                    sent = False
 
-                        await event.client.send_file(
-                            event.chat_id,
-                            "video.mp4",
-                            caption="✅ MP4 Video Ready"
-                        )
+                    for file in os.listdir():
 
-                        os.remove("video.mp4")
+                        if file.endswith(".mp4"):
 
-                    else:
+                            await event.client.send_file(
+                                event.chat_id,
+                                file,
+                                caption="✅ MP4 Video Ready"
+                            )
+
+                            os.remove(file)
+
+                            sent = True
+
+                    if not sent:
 
                         await event.respond(
-                            "❌ Video Download नहीं हुई"
+                            "❌ MP4 Video नहीं मिली"
                         )
 
                 except Exception as e:
@@ -82,6 +107,7 @@ async def txt_handler(event):
                         f"❌ Error:\n{str(e)}"
                     )
 
+        # Delete TXT
         os.remove(txt_path)
 
         await event.respond(
