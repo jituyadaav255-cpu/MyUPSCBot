@@ -1,12 +1,15 @@
 from pyrogram import Client
+import os
+
+# vars.py की जगह सीधे यहाँ से टोकन लें अगर मुमकिन हो, 
+# या फिर vars से ही उठाएं
 from vars import BOT_TOKEN
 
-# in_memory=True करने से कोई .session फाइल नहीं बनेगी
+# api_id और api_hash को हटाकर सिर्फ bot_token दें
 app = Client(
-    "my_bot",
-    bot_token=BOT_TOKEN,
-    in_memory=True 
+    "bot",
+    bot_token=BOT_TOKEN
 )
 
-print("बोट सफलता के साथ लाइव हो गया है!")
+print("बोट लाइव हो रहा है...")
 app.run()
