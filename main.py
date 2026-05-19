@@ -1,7 +1,15 @@
+from telethon import TelegramClient, events
+from vars import BOT_TOKEN
+
+# 1. सबसे पहले Client को Define करें
+api_id = 31911187
+api_hash = '8291ae3d580f1fb5f8f84e0e3c6a3e6f'
+client = TelegramClient('bot', api_id, api_hash).start(bot_token=BOT_TOKEN)
+
+# 2. अब जब client बन गया है, उसके नीचे ही Events लिखें
 @client.on(events.NewMessage)
-async def debug_handler(event):
-    if event.message.file and event.message.file.name.endswith('.txt'):
-        path = await event.download_media()
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read(500) # सिर्फ शुरुआती 500 अक्षर
-            await event.respond(f"फाइल के अंदर यह लिखा है:\n\n{content}")
+async def handler(event):
+    # आपका कोड यहाँ आएगा
+    pass
+
+client.run_until_disconnected()
