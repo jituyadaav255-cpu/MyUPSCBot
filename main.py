@@ -1,9 +1,10 @@
 from telethon import TelegramClient, events
 import yt_dlp
 import os
+import glob
 
 # =========================
-# Telegram API Details
+# TELEGRAM API DETAILS
 # =========================
 
 API_ID = 31911187
@@ -13,7 +14,7 @@ API_HASH = "8291ae3d580f1fb5f8f84e0e3c6a3e6f"
 BOT_TOKEN = "8908901463:AAHuKRv0wbGys3TOHNO7tElnv8Gl75G6cRk"
 
 # =========================
-# Start Bot
+# START BOT
 # =========================
 
 client = TelegramClient(
@@ -22,21 +23,21 @@ client = TelegramClient(
     API_HASH
 ).start(bot_token=BOT_TOKEN)
 
-print("✅ Bot Started Successfully")
+print("✅ BOT STARTED SUCCESSFULLY")
 
 # =========================
-# TXT File Handler
+# TXT FILE HANDLER
 # =========================
 
 @client.on(events.NewMessage)
 
 async def txt_handler(event):
 
-    # TXT file check
+    # Check TXT file
     if event.message.file and event.message.file.name.endswith('.txt'):
 
         await event.respond(
-            "✅ TXT File मिल गई\n🎬 Video Download शुरू..."
+            "✅ TXT FILE मिल गई\n🎬 VIDEO DOWNLOAD START..."
         )
 
         # Download TXT
@@ -46,76 +47,75 @@ async def txt_handler(event):
         with open(txt_path, 'r', encoding='utf-8') as file:
             links = file.readlines()
 
-        # Process Every Link
+        # Process every link
         for link in links:
 
             url = link.strip()
 
-            # Valid URL Check
+            # Check valid URL
             if url.startswith("http"):
 
                 try:
 
                     await event.respond(
-                        f"⬇️ Downloading:\n{url}"
+                        f"⬇️ DOWNLOADING:\n{url}"
                     )
 
-                    # Delete old files
-                    for f in os.listdir():
-                        if f.endswith(".mp4"):
-                            os.remove(f)
+                    # Delete old videos
+                    old_files = glob.glob("*.mp4")
 
-                    # Download Settings
+                    for old in old_files:
+                        os.remove(old)
+
+                    # yt-dlp options
                     ydl_opts = {
                         'format': 'bestvideo+bestaudio/best',
                         'merge_output_format': 'mp4',
-                        'outtmpl': 'video.%(ext)s',
+                        'outtmpl': '%(title)s.%(ext)s',
                         'quiet': False,
                         'noplaylist': True
                     }
 
-                    # Download Video
+                    # Download video
                     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                         ydl.download([url])
 
-                    # Find MP4 File
-                    sent = False
+                    # Find MP4 file
+                    mp4_files = glob.glob("*.mp4")
 
-                    for file in os.listdir():
+                    if mp4_files:
 
-                        if file.endswith(".mp4"):
+                        for video in mp4_files:
 
                             await event.client.send_file(
                                 event.chat_id,
-                                file,
-                                caption="✅ MP4 Video Ready"
+                                video,
+                                caption="✅ MP4 VIDEO READY"
                             )
 
-                            os.remove(file)
+                            os.remove(video)
 
-                            sent = True
-
-                    if not sent:
+                    else:
 
                         await event.respond(
-                            "❌ MP4 Video नहीं मिली"
+                            "❌ MP4 VIDEO नहीं मिली"
                         )
 
                 except Exception as e:
 
                     await event.respond(
-                        f"❌ Error:\n{str(e)}"
+                        f"❌ ERROR:\n{str(e)}"
                     )
 
         # Delete TXT
         os.remove(txt_path)
 
         await event.respond(
-            "✅ सभी Links Process हो गए"
+            "✅ सभी LINKS PROCESS हो गए"
         )
 
 # =========================
-# Run Bot
+# RUN BOT
 # =========================
 
 client.run_until_disconnected()
